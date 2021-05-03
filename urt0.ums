@@ -1,0 +1,23 @@
+.section init
+    .temps r6, r7
+    .zero r0
+
+.section stk
+    .space 100000
+    endstack:
+
+.section calc_stack
+    .space 100000
+    calc_stack:
+
+.section rodata
+    jumptable:
+    .space 256
+
+.section init
+    start:
+        r0 := 0
+        r2 := endstack
+        r3 := calc_stack
+        goto main linking r1
+        halt

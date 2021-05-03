@@ -1,0 +1,233 @@
+.section init
+    .temps r5, r6, r7
+    .zero r0
+
+    r4 := jumptable
+    loop_fill_null:
+        if (r4 == jumptable + 256) goto end_fill_null
+        m[r0][r4] := junk_val
+        r4 := r4 + 1
+        goto loop_fill_null
+    end_fill_null:
+                
+    fill_command:
+        m[r0][jumptable + ' '] := waiting
+        m[r0][jumptable + '+'] := add
+        m[r0][jumptable + '-'] := subtract
+        m[r0][jumptable + '*'] := mult
+        m[r0][jumptable + '/'] := division
+        m[r0][jumptable + '|'] := bitwise_or
+        m[r0][jumptable + '&'] := bitwise_and
+        m[r0][jumptable + 'c'] := negation
+        m[r0][jumptable + '~'] := bitwise_complement
+        m[r0][jumptable + 's'] := swap_top
+        m[r0][jumptable + 'd'] := dup_top
+        m[r0][jumptable + 'p'] := pop_top
+        m[r0][jumptable + 'z'] := rem_all
+        m[r0][jumptable + '\n'] := print
+   
+    r4 := jumptable + 48
+    loop_fill_digit:
+        if (r4 == jumptable + 58) goto end_fill_digit
+        m[r0][r4] := digit
+        r4 := r4 + 1
+        goto loop_fill_digit
+    end_fill_digit:
+    
+    
+
+.section text
+    main:
+        // r2 holds THE stack
+        // r3 holds the calc stack
+        
+        r0 := 0
+        goto waiting
+
+        halt
+
+    waiting:
+        output "waiting\n"
+        r1 := input()
+        
+        goto waiting_with_character
+
+    
+    waiting_with_character:
+        output "waiting w char: "
+        output r1
+        output "\n"
+
+        r4 := jumptable + r1
+        r4 := m[r0][r4]
+        
+        goto r4
+
+
+    digit:
+        output "in digit\n"
+        push r1 on stack r3
+
+
+        
+
+    add:
+        output "add has been read\n"
+        pop r4 off stack r3
+        pop r1 off stack r3
+        
+        r4 := r1 + r4
+
+        push r4 on stack r3
+        goto waiting
+    
+    subtract:
+        output "subtract has been read\n"
+        pop r4 off stack r3
+        pop r1 off stack r3
+        r4 := r1 - r4
+        push r4 on stack r3
+        goto waiting
+        
+    mult:
+        output "mult has been read\n"
+        pop r4 off stack r3
+        pop r1 off stack r3
+        output "after popping off\n"
+        r4 := r4 * r1
+
+
+        push r4 on stack r3
+        goto waiting
+        
+    division:
+        output "division has been read\n"
+        pop r4 off stack r3
+        pop r1 off stack r3
+
+        if (r4 == 0) goto div0
+        
+        r4 := r1 / r4
+        push r4 on stack r3
+        goto end_div0
+
+        div0:
+            output "Error: division by 0\n"
+            push r1 on stack r3
+            push r4 on stack r3
+        end_div0:
+
+        goto waiting
+
+
+    bitwise_or:
+        output "bitwise or has been read\n"
+
+        pop r4 off stack r3
+        pop r1 off stack r3
+
+        r4 := r1 | r4
+        push r4 on stack r3
+
+        goto waiting
+        
+
+    bitwise_and:
+        output "bitwsie and has been read\n"
+
+        pop r4 off stack r3
+        pop r1 off stack r3
+        
+        r4 := r4 & r1
+        push r4 on stack r3
+
+        goto waiting
+
+        
+    negation:
+        output "negation has been read\n"
+
+        pop r4 off stack r3
+        
+        r4 := - r4
+
+        push r4 on stack r3
+
+        goto waiting
+
+    
+    bitwise_complement:
+        output "bitwise complement has been read\n"
+
+        pop r4 off stack r3
+        
+        r4 := ~ r4
+
+        push r4 on stack r3
+
+        goto waiting
+    
+    swap_top:
+        output "swap_top\n"
+
+        pop r4 off stack r3
+        pop r1 off stack r3
+        
+        push r4 on stack r3
+        push r1 on stack r3
+       
+        goto waiting
+
+    dup_top:
+        output "dup_top\n"
+
+        pop r4 off stack r3
+        push r4 on stack r3
+        
+        push r4 on stack r3
+        
+        goto waiting
+
+
+    pop_top:
+        output "pop top\n"
+
+        pop r4 off stack r3
+
+        goto waiting
+
+
+    rem_all:
+        output "rem all vals\n"
+
+        beg_remove:
+            if (r3 == calc_stack) goto end_remove
+            pop r4 off stack r3
+            goto beg_remove
+
+        end_remove:
+
+        goto waiting
+
+    print:
+        output "printing stack \n"
+        pop r1 off stack r3
+        push r1 on stack r2
+
+        goto print_digit linking r1
+
+        pop r1 off stack r2
+        output "\n"
+        goto waiting
+
+    junk_val:
+        output "junk_val\n"
+
+        output "Error: poor input :(/n"
+
+        goto waiting
+
+    
+    
+
+

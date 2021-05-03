@@ -1,0 +1,26 @@
+   
+.section init
+    .zero r0
+    .temps r6,r7
+
+
+.section text  
+    main:
+        push r1 on stack r2
+        goto func1 linking r1
+        if (r1 == 0) goto print
+        
+        print:
+            output "success\n"
+        
+        pop r1 off stack r2
+        goto r1
+
+
+ func1:
+    push r1 on stack r2
+    #...DO REAL WORK HERE...#
+    output "Hello world\n"
+    pop r5 off stack r2
+    r1 := 0
+    goto r5

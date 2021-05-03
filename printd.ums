@@ -1,0 +1,34 @@
+.section init
+    .temps r5, r6, r7
+    .zero r0
+
+.section text
+    print_digit:
+        output "printing!\n"
+        push r1 on stack r2 // holds return address
+        push r3 on stack r2 // value stack
+        push r4 on stack r2 // temp value
+
+        r4 := m[r0][r2 + 3]
+
+        output "r4 is: "
+        output r4
+        output "\n"
+
+        if (r4 <s 57) goto end_func
+        output "not good, not good\n"
+        r3 := r4 mod 10
+        r4 := r4 / 10
+
+        push r4 on stack r2
+        goto print_digit linking r1
+        pop r4 off stack r2
+
+        end_func:
+            r3 := r4
+            output r3
+            pop r4 off stack r2
+            pop r3 off stack r2
+            pop r1 off stack r2
+
+            goto r1
