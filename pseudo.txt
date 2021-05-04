@@ -1,0 +1,43 @@
+/*
+PSEUDO CODE
+
+
+print_digit(int num){
+    //base cases
+    if(num == 0){
+        print 0
+    }
+    digit = num % 10
+    if (num > 0 && num < 10){
+        c.append(digit);
+    }
+    
+    print_digit(num / 10);
+}
+
+print_digit(int num) {
+
+    if (num >= 0 && num < 10) {
+        print num;
+        return;
+    }
+
+    print_digit(num / 10);
+    print num % 10;
+
+    
+}
+
+
+/*
+two values must be stored on the stack
+
+|junk_val|junk_val|good_val| | |
+
+if x or y is junk_val 
+*/
+
+
+
+|val|val|val|val| 
+

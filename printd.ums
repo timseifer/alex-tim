@@ -3,32 +3,71 @@
     .zero r0
 
 .section text
-    print_digit:
-        output "printing!\n"
-        push r1 on stack r2 // holds return address
-        push r3 on stack r2 // value stack
-        push r4 on stack r2 // temp value
+    print:
+        // output "printing stack \n"
+        
+
+
+        output ">>> "
+        r1 := exit_print
+        r4 := m[r0][r3]
+        main_loop:
+            if (r4 >s 0) goto large_neg_wrap
+            goto skip_base
+            large_neg_wrap: 
+                if (r4 <s 0) goto large_neg
+            
+            skip_base:
+            push r4 on stack r2
+            
+            if (r4 >=s 0) goto print_pos
+            
+            pop r4 off stack r2
+            r4 := -r4
+            push r4 on stack r2
+
+            output "-"
+            goto print_pos
+
+            large_neg:
+                output "-2147483648"
+                goto exit_print
+            
+            large_pos:
+                output "2147483647"
+                goto exit_print
+
+            exit_print:
+                output "\n"
+                goto waiting
+
+
+    print_pos:
+        push r1 on stack r2
+        push r3 on stack r2
+        push r4 on stack r2
 
         r4 := m[r0][r2 + 3]
 
-        output "r4 is: "
-        output r4
-        output "\n"
+        if (r4 <=s 9) goto single_digit
+        goto multi_dig
 
-        if (r4 <s 57) goto end_func
-        output "not good, not good\n"
-        r3 := r4 mod 10
-        r4 := r4 / 10
+        single_digit:
+            output r4 + '0'
+            goto return_print_pos
 
-        push r4 on stack r2
-        goto print_digit linking r1
-        pop r4 off stack r2
-
-        end_func:
-            r3 := r4
-            output r3
+        multi_dig:
+            r4 := r4 / 10
+            push r4 on stack r2
+            goto print_pos linking r1
+            pop r4 off stack r2
+            r4 := m[r0][r2 + 3]
+            r4 := r4 mod 10
+            output r4 + '0'
+            goto return_print_pos
+            
+        return_print_pos:
             pop r4 off stack r2
             pop r3 off stack r2
             pop r1 off stack r2
-
             goto r1

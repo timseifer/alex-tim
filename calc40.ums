@@ -1,4 +1,4 @@
-.section init
+    .section init
     .temps r5, r6, r7
     .zero r0
 
@@ -33,8 +33,6 @@
         r4 := r4 + 1
         goto loop_fill_digit
     end_fill_digit:
-    
-    
 
 .section text
     main:
@@ -47,32 +45,58 @@
         halt
 
     waiting:
-        output "waiting\n"
-        r1 := input()
+        //output "waiting\n"
+        r1 := input() 
         
-        goto waiting_with_character
+        r4 := jumptable + r1
+        r4 := m[r0][r4]
+        if (r4 == digit) goto digit
+
+        goto entering
 
     
-    waiting_with_character:
-        output "waiting w char: "
-        output r1
-        output "\n"
+    entering:
+        //output "next char: "
+        //output r1
+        //output "\n"
 
         r4 := jumptable + r1
         r4 := m[r0][r4]
-        
+        if (r4 == digit) goto digit_mult
+
+        r4 := jumptable + r1
+        r4 := m[r0][r4]
+
         goto r4
 
 
     digit:
-        output "in digit\n"
+        //output "in digit\n"
+        r1 := r1 - 48
         push r1 on stack r3
+        r1 := input()
+        goto entering
 
-
-        
+    digit_mult:
+        //output "digit mult\n"
+        pop r4 off stack r3
+        r4 := r4 * 10
+        r1 := r1 - 48
+        r1 := r1 + r4
+        push r1 on stack r3
+        r1 := input()
+        goto entering
+    
+    stack_underflow:
+        output "Error: stack underflow :(\n"
+        r1 := input() // ignore newline
+        goto waiting
 
     add:
-        output "add has been read\n"
+        //output "add has been read\n"
+        r4 := 2 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
+
         pop r4 off stack r3
         pop r1 off stack r3
         
@@ -82,7 +106,11 @@
         goto waiting
     
     subtract:
-        output "subtract has been read\n"
+        //output "subtract has been read\n"
+
+        r4 := 2 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
+
         pop r4 off stack r3
         pop r1 off stack r3
         r4 := r1 - r4
@@ -90,10 +118,14 @@
         goto waiting
         
     mult:
-        output "mult has been read\n"
+        //output "mult has been read\n"
+
+        r4 := 2 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
+
         pop r4 off stack r3
         pop r1 off stack r3
-        output "after popping off\n"
+        //output "after popping off\n"
         r4 := r4 * r1
 
 
@@ -101,7 +133,11 @@
         goto waiting
         
     division:
-        output "division has been read\n"
+        //output "division has been read\n"
+
+        r4 := 2 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
+
         pop r4 off stack r3
         pop r1 off stack r3
 
@@ -121,7 +157,10 @@
 
 
     bitwise_or:
-        output "bitwise or has been read\n"
+        //output "bitwise or has been read\n"
+
+        r4 := 2 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
 
         pop r4 off stack r3
         pop r1 off stack r3
@@ -133,7 +172,10 @@
         
 
     bitwise_and:
-        output "bitwsie and has been read\n"
+        //output "bitwsie and has been read\n"
+
+        r4 := 2 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
 
         pop r4 off stack r3
         pop r1 off stack r3
@@ -145,7 +187,10 @@
 
         
     negation:
-        output "negation has been read\n"
+        //output "negation has been read\n"
+
+        r4 := 1 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
 
         pop r4 off stack r3
         
@@ -157,7 +202,10 @@
 
     
     bitwise_complement:
-        output "bitwise complement has been read\n"
+        //output "bitwise complement has been read\n"
+
+        r4 := 1 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
 
         pop r4 off stack r3
         
@@ -168,7 +216,10 @@
         goto waiting
     
     swap_top:
-        output "swap_top\n"
+       // output "swap_top\n"
+
+        r4 := 2 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
 
         pop r4 off stack r3
         pop r1 off stack r3
@@ -179,8 +230,11 @@
         goto waiting
 
     dup_top:
-        output "dup_top\n"
+        //output "dup_top\n"
 
+        r4 := 1 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
+        
         pop r4 off stack r3
         push r4 on stack r3
         
@@ -190,7 +244,10 @@
 
 
     pop_top:
-        output "pop top\n"
+        //output "pop top\n"
+
+        r4 := 1 + calc_stack
+        if (r3 >=s r4) goto stack_underflow
 
         pop r4 off stack r3
 
@@ -198,10 +255,10 @@
 
 
     rem_all:
-        output "rem all vals\n"
+        //output "rem all vals\n"
 
         beg_remove:
-            if (r3 == calc_stack) goto end_remove
+            if (r3 >=s calc_stack) goto end_remove
             pop r4 off stack r3
             goto beg_remove
 
@@ -209,19 +266,9 @@
 
         goto waiting
 
-    print:
-        output "printing stack \n"
-        pop r1 off stack r3
-        push r1 on stack r2
-
-        goto print_digit linking r1
-
-        pop r1 off stack r2
-        output "\n"
-        goto waiting
 
     junk_val:
-        output "junk_val\n"
+        //output "junk_val\n"
 
         output "Error: poor input :(/n"
 
@@ -229,5 +276,13 @@
 
     
     
-
-
+    print_wrapper:
+        r1 := r3
+        begin_print_loop:
+            if (r1 >=s calc_stack) goto end_print_loop
+            
+            goto print linking r1
+            r1 := r1 - 1
+        
+        end_print_loop:
+        goto waiting
